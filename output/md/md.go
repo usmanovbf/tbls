@@ -128,6 +128,7 @@ func (m *Md) OutputTable(wr io.Writer, t *schema.Table) error {
 	default:
 		if m.er {
 			templateData["er"] = !m.config.ER.Skip
+			templateData["erFormat"] = m.config.ER.Format
 		} else {
 			templateData["er"] = false
 		}
@@ -686,7 +687,7 @@ func (m *Md) makeTableTemplateData(t *schema.Table) map[string]interface{} {
 	for _, t := range t.Triggers {
 		data := []string{
 			t.Name,
-			t.Def,
+			t.Def.String,
 		}
 		if tComment {
 			data = append(data, t.Comment)

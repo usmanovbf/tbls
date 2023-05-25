@@ -192,13 +192,14 @@ WHERE event_object_schema = ?
 			triggerEventObjectTable  string
 			triggerActionOrientation string
 			triggerActionStatement   string
-			triggerDef               string
+			triggerDef               sql.NullString
 		)
 		err = triggerRows.Scan(&tableName, &triggerName, &triggerActionTiming, &triggerEventManipulation, &triggerEventObjectTable, &triggerActionOrientation, &triggerActionStatement)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		triggerDef = fmt.Sprintf("CREATE TRIGGER %s %s %s ON %s\nFOR EACH %s\n%s", triggerName, triggerActionTiming, triggerEventManipulation, triggerEventObjectTable, triggerActionOrientation, triggerActionStatement)
+		triggerDef.String = fmt.Sprintf("CREATE TRIGGER %s %s %s ON %s\nFOR EACH %s\n%s", triggerName, triggerActionTiming, triggerEventManipulation, triggerEventObjectTable, triggerActionOrientation, triggerActionStatement)
+		triggerDef.Valid = true
 		trigger := &schema.Trigger{
 			Name: triggerName,
 			Def:  triggerDef,

@@ -163,14 +163,22 @@ SELECT
   i.is_unique,
   i.is_primary_key,
   i.is_unique_constraint,
-  STRING_AGG(COL_NAME(ic.object_id, ic.column_id), ', ') WITHIN GROUP ( ORDER BY ic.key_ordinal ),
+      STUFF(
+            (
+                SELECT ', ' + COL_NAME(ic.object_id, ic.column_id)
+                FROM sys.index_columns AS ic
+                WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id
+                ORDER BY ic.key_ordinal
+                FOR XML PATH('')
+        ), 1, 2, ''
+  ) ,
   c.is_system_named
 FROM sys.key_constraints AS c
 LEFT JOIN sys.indexes AS i ON i.object_id = c.parent_object_id AND i.index_id = c.unique_index_id
 INNER JOIN sys.index_columns AS ic
 ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 WHERE i.object_id = object_id(@p1)
-GROUP BY c.name, i.index_id, i.type_desc, i.is_unique, i.is_primary_key, i.is_unique_constraint, c.is_system_named
+GROUP BY c.name, i.index_id, i.type_desc, i.is_unique, i.is_primary_key, i.is_unique_constraint, c.is_system_named, i.object_id
 ORDER BY i.index_id
 `, fmt.Sprintf("%s.%s", tableSchema, tableName))
 		if err != nil {
@@ -179,7 +187,7 @@ ORDER BY i.index_id
 		defer keyRows.Close()
 		for keyRows.Next() {
 			var (
-				indexName               string
+				indexName               sql.NullString
 				indexClusterType        string
 				indexIsUnique           bool
 				indexIsPrimaryKey       bool
@@ -225,15 +233,31 @@ SELECT
   OBJECT_NAME(f.parent_object_id) AS table_name,
   OBJECT_NAME(f.referenced_object_id) AS parent_table_name,
   OBJECT_SCHEMA_NAME(f.referenced_object_id) AS parent_schema_name,
-  STRING_AGG(COL_NAME(fc.parent_object_id, fc.parent_column_id), ', ') AS column_names,
-  STRING_AGG(COL_NAME(fc.referenced_object_id, fc.referenced_column_id), ', ') AS parent_column_names,
+STUFF(
+            (
+                SELECT ', ' + COL_NAME(fc.parent_object_id, fc.parent_column_id)
+                FROM sys.foreign_key_columns AS fc
+                WHERE fc.constraint_object_id = f.object_id
+                ORDER BY fc.constraint_column_id
+                FOR XML PATH('')
+        ), 1, 2, ''
+  ) AS column_names,
+    STUFF(
+            (
+                SELECT ', ' + COL_NAME(fc.referenced_object_id, fc.referenced_column_id)
+                FROM sys.foreign_key_columns AS fc
+                WHERE fc.constraint_object_id = f.object_id
+                ORDER BY fc.constraint_column_id
+                FOR XML PATH('')
+        ), 1, 2, ''
+  ) AS parent_column_names,
   update_referential_action_desc,
   delete_referential_action_desc,
   f.is_system_named
 FROM sys.foreign_keys AS f
 LEFT JOIN sys.foreign_key_columns AS fc ON f.object_id = fc.constraint_object_id
 WHERE f.parent_object_id = object_id(@p1)
-GROUP BY f.name, f.parent_object_id, f.referenced_object_id, delete_referential_action_desc, update_referential_action_desc, f.is_system_named
+GROUP BY f.name, f.parent_object_id, f.referenced_object_id, delete_referential_action_desc, update_referential_action_desc, f.is_system_named, f.object_id
 `, fmt.Sprintf("%s.%s", tableSchema, tableName))
 		if err != nil {
 			return errors.WithStack(err)
@@ -241,7 +265,7 @@ GROUP BY f.name, f.parent_object_id, f.referenced_object_id, delete_referential_
 		defer fkRows.Close()
 		for fkRows.Next() {
 			var (
-				fkName              string
+				fkName              sql.NullString
 				fkTableName         string
 				fkParentTableName   string
 				fkParentSchemaName  string
@@ -290,8 +314,8 @@ WHERE parent_object_id = object_id(@p1)
 		defer checkRows.Close()
 		for checkRows.Next() {
 			var (
-				checkName          string
-				checkDef           string
+				checkName          sql.NullString
+				checkDef           sql.NullString
 				checkIsSystemNamed bool
 			)
 			err = checkRows.Scan(&checkName, &checkDef, &checkIsSystemNamed)
@@ -327,7 +351,7 @@ AND parent_id = object_id(@p1)
 		for triggerRows.Next() {
 			var (
 				triggerName string
-				triggerDef  string
+				triggerDef  sql.NullString
 			)
 			err = triggerRows.Scan(&triggerName, &triggerDef)
 			if err != nil {
@@ -349,7 +373,15 @@ SELECT
   i.is_unique,
   i.is_primary_key,
   i.is_unique_constraint,
-  STRING_AGG(COL_NAME(ic.object_id, ic.column_id), ', ') WITHIN GROUP ( ORDER BY ic.key_ordinal ),
+    STUFF(
+            (
+                SELECT ', ' + COL_NAME(ic.object_id, ic.column_id)
+                FROM sys.index_columns AS ic
+                WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id
+                ORDER BY ic.key_ordinal
+                FOR XML PATH('')
+        ), 1, 2, ''
+  ) AS column_names,
   c.is_system_named
 FROM sys.indexes AS i
 INNER JOIN sys.index_columns AS ic
@@ -357,7 +389,7 @@ ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 LEFT JOIN sys.key_constraints AS c
 ON i.object_id = c.parent_object_id AND i.index_id = c.unique_index_id
 WHERE i.object_id = object_id(@p1)
-GROUP BY i.name, i.index_id, i.type_desc, i.is_unique, i.is_primary_key, i.is_unique_constraint, c.is_system_named
+GROUP BY i.name, i.index_id, i.type_desc, i.is_unique, i.is_primary_key, i.is_unique_constraint, c.is_system_named,  i.index_id, i.object_id
 ORDER BY i.index_id
 `, fmt.Sprintf("%s.%s", tableSchema, tableName))
 		if err != nil {
@@ -367,7 +399,7 @@ ORDER BY i.index_id
 		indexes := []*schema.Index{}
 		for indexRows.Next() {
 			var (
-				indexName               string
+				indexName               sql.NullString
 				indexType               string
 				indexIsUnique           bool
 				indexIsPrimaryKey       bool
@@ -592,9 +624,12 @@ func convertColumnType(t string, maxLength int) string {
 	}
 }
 
-func convertSystemNamed(name string, isSytemNamed bool) string {
-	if isSytemNamed {
-		return reSystemNamed.ReplaceAllString(name, "*")
+func convertSystemNamed(name sql.NullString, isSytemNamed bool) string {
+	if name.Valid {
+		if isSytemNamed {
+			return reSystemNamed.ReplaceAllString(name.String, "*")
+		}
+		return name.String
 	}
-	return name
+	return ""
 }

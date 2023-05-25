@@ -248,7 +248,7 @@ func (x *Xlsx) createTableSheet(w *excl.Workbook, t *schema.Table) (e error) {
 		r++
 		for i, trg := range t.Triggers {
 			setStringWithBorder(sheet, r+i, 1, trg.Name)
-			setStringWithBorder(sheet, r+i, 2, trg.Def)
+			setStringWithBorder(sheet, r+i, 2, trg.Def.String)
 		}
 	}
 

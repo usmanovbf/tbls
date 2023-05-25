@@ -203,7 +203,7 @@ ORDER BY tgrelid
 			for triggerRows.Next() {
 				var (
 					triggerName    string
-					triggerDef     string
+					triggerDef     sql.NullString
 					triggerComment sql.NullString
 				)
 				err = triggerRows.Scan(&triggerName, &triggerDef, &triggerComment)

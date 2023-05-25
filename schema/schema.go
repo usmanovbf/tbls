@@ -66,9 +66,9 @@ type Constraint struct {
 
 // Trigger is the struct for database trigger
 type Trigger struct {
-	Name    string `json:"name"`
-	Def     string `json:"def"`
-	Comment string `json:"comment"`
+	Name    string         `json:"name"`
+	Def     sql.NullString `json:"def"`
+	Comment string         `json:"comment"`
 }
 
 // Column is the struct for table column
@@ -87,6 +87,7 @@ type Column struct {
 	PK              bool            `json:"-"`
 	FK              bool            `json:"-"`
 	HideForER       bool            `json:"-"`
+	//DiscussionUntilNextRelease     string          `json:"-"`
 }
 
 // Table is the struct for database table

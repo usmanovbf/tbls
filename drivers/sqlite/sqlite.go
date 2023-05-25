@@ -325,7 +325,7 @@ SELECT name, sql FROM sqlite_master WHERE type = 'trigger' AND tbl_name = ?;
 		for triggerRows.Next() {
 			var (
 				triggerName string
-				triggerDef  string
+				triggerDef  sql.NullString
 			)
 			err = triggerRows.Scan(&triggerName, &triggerDef)
 			if err != nil {
