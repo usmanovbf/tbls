@@ -566,6 +566,7 @@ func (m *Md) makeTableTemplateData(t *schema.Table) map[string]interface{} {
 	m.adjustColumnHeader(&columnsHeader, &columnsHeaderLine, t.ShowColumn(schema.ColumnChildren, hideColumns), "Children")
 	m.adjustColumnHeader(&columnsHeader, &columnsHeaderLine, t.ShowColumn(schema.ColumnParents, hideColumns), "Parents")
 	m.adjustColumnHeader(&columnsHeader, &columnsHeaderLine, t.ShowColumn(schema.ColumnComment, hideColumns), "Comment")
+	m.adjustColumnHeader(&columnsHeader, &columnsHeaderLine, t.ShowColumn(schema.ColumnDiscussion, hideColumns), "Discussion")
 	m.adjustColumnHeader(&columnsHeader, &columnsHeaderLine, t.ShowColumn(schema.ColumnLabels, hideColumns), "Labels")
 
 	columnsData = append(columnsData, columnsHeader, columnsHeaderLine)
@@ -602,6 +603,7 @@ func (m *Md) makeTableTemplateData(t *schema.Table) map[string]interface{} {
 		adjustData(&data, t.ShowColumn(schema.ColumnChildren, hideColumns), strings.Join(childRelations, " "))
 		adjustData(&data, t.ShowColumn(schema.ColumnParents, hideColumns), strings.Join(parentRelations, " "))
 		adjustData(&data, t.ShowColumn(schema.ColumnComment, hideColumns), c.Comment)
+		adjustData(&data, t.ShowColumn(schema.ColumnDiscussion, hideColumns), c.Discussion)
 		adjustData(&data, t.ShowColumn(schema.ColumnLabels, hideColumns), output.LabelJoin(c.Labels))
 		columnsData = append(columnsData, data)
 	}

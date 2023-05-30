@@ -1,0 +1,70 @@
+# .tbls.yml
+
+# Path to generate document
+# Default is `dbdoc`
+docPath: doc/schema
+
+er:
+  # Skip generation of ER diagram
+  # Default is false
+  skip: false
+  # ER diagram image format
+  # Default is `svg`
+  format: svg
+  # Add table/column comment to ER diagram
+  # Default is false
+  comment: true
+  # Distance between tables that display relations in the ER
+  # Default is 1
+  distance: 1
+  # Hide relation definition from ER diagram
+  # Default is false
+  hideDef: false
+
+detectVirtualRelations:
+  enabled: true
+  strategy: default
+
+format:
+  # Adjust the column width of Markdown format table
+  # Default is false
+  adjust: true
+  # Sort the order of table list and columns
+  # Default is false
+  sort: false
+  # Display sequential numbers in table rows
+  # Default is false
+  number: true
+  # The comments for each table in the Tables section of the index page will display the text up to the first double newline (first paragraph).
+  # Default is false
+  showOnlyFirstParagraph: false
+  # Hide table columns without values
+  # Default is false
+  hideColumnsWithoutValues: false
+  # It can be boolean or array
+  # hideColumnsWithoutValues: ["Parents", "Children"]
+
+dict:
+  Tables: Список таблиц
+  Description: Описание
+  Columns: Список столбцов
+  Indexes: Список индексов
+  Constraints: Список ограничений
+  Triggers: Триггеры
+  Relations: ER-диаграмма
+  Name: Имя
+  Comment: Коммент. в БД
+  Type: Тип
+  Default: Знач. по умолч.
+  Children: Доч. таблица
+  Parents: Род. таблица
+  Definition: Определение
+  Table Definition: Определение таблицы
+  Discussion: Обсужд. до след. релиза
+
+
+
+templates:
+  md:
+    index: 'testdata/templates/index-mc.md.tmpl'
+    table: 'testdata/templates/table-mc.md.tmpl'

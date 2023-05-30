@@ -182,12 +182,4 @@ release_darwin:
 include private.env
 export
 
-doc_mc_dbs: build
-	$(TBLS) doc sqlserver://trino:ZIoPcbVbOznH@mck-t3-ucdb.mgc.local:1433/ACDB doc/schema/ACDB  -c testdata/config/.tbls-old-mssql.yml  --rm-dist --er-format svg
-	#$(TBLS) doc sqlserver://trino:ZIoPcbVbOznH@mck-t3-ucdb.mgc.local:1433/Agents doc/schema/Agents  -c testdata/config/.tbls-old-mssql.yml  --rm-dist --er-format svg
-	$(TBLS) doc sqlserver://trino:ZIoPcbVbOznH@mck-t3-ucdb.mgc.local:1433/DICT doc/schema/DICT  -c testdata/config/.tbls-old-mssql.yml  --rm-dist --er-format svg
-	$(TBLS) doc sqlserver://trino:ZIoPcbVbOznH@mck-t3-ucdb.mgc.local:1433/LeadDB doc/schema/LeadDB  -c testdata/config/.tbls-old-mssql.yml  --rm-dist --er-format svg
-	$(TBLS) doc sqlserver://trino:ZIoPcbVbOznH@mck-t3-ucdb.mgc.local:1433/OCDB doc/schema/OCDB  -c testdata/config/.tbls-old-mssql.yml  --rm-dist --er-format svg
-
-
 .PHONY: default test

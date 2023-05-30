@@ -22,6 +22,7 @@ const (
 	ColumnParents     = "Parents"
 	ColumnComment     = "Comment"
 	ColumnLabels      = "Labels"
+	ColumnDiscussion  = "Discussion"
 )
 
 var DefaultHideColumns = []string{ColumnExtraDef, ColumnOccurrences, ColumnPercents, ColumnLabels}
@@ -87,7 +88,7 @@ type Column struct {
 	PK              bool            `json:"-"`
 	FK              bool            `json:"-"`
 	HideForER       bool            `json:"-"`
-	//DiscussionUntilNextRelease     string          `json:"-"`
+	Discussion      string          `json:"-"`
 }
 
 // Table is the struct for database table
